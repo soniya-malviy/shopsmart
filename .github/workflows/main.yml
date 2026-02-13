@@ -1,28 +1,23 @@
-name: File Scan (Super Linter)
+name: Hello World
 
 on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-
-permissions:
-  contents: read
-  statuses: write
+    push:
+    workflow_dispatch:
+      inputs:
+        name:
+          description: "Name to greet"
+          required: true
+          default: "NST"
 
 jobs:
-  super-linter:
-    name: Run Super Linter
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run GitHub Super Linter
-        uses: github/super-linter/slim@v6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BRANCH: main
-          VALIDATE_ALL_CODEBASE: true
-          IGNORE_GITIGNORED_FILES: true
+    hello-world:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Say Hello
+              run: echo "Hello ${{ github.event.inputs.name }}!"
+            - name: List Files
+              run: ls -la
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: List Files
+              run: ls -la
