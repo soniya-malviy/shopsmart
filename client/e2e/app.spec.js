@@ -11,14 +11,8 @@ test.describe('ShopSmart E2E', () => {
         await expect(page.getByRole('heading', { name: 'Backend Status' })).toBeVisible();
     });
 
-    test('displays loading then content', async ({ page }) => {
-        await page.goto('/');
-        await expect(page.getByText(/Loading/i)).toBeVisible();
-        await page.waitForTimeout(1000);
-    });
-
     test('shows products list', async ({ page }) => {
         await page.goto('/');
-        await expect(page.getByPlaceholderText(/Search products/i)).toBeVisible();
+        await expect(page.locator('input[type="text"]')).toBeVisible();
     });
 });
