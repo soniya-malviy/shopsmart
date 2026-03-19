@@ -16,4 +16,9 @@ test.describe('ShopSmart E2E', () => {
         await expect(page.getByText(/Loading/i)).toBeVisible();
         await page.waitForTimeout(1000);
     });
+
+    test('shows products list', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.getByPlaceholderText(/Search products/i)).toBeVisible();
+    });
 });

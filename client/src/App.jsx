@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import ProductList from './components/ProductList'
 
 function App() {
     const [data, setData] = useState(null);
@@ -26,9 +27,7 @@ function App() {
                     <p>Loading backend status...</p>
                 )}
             </div>
-            <p className="hint">
-                Edit <code>src/App.jsx</code> and save to test HMR
-            </p>
+            <ProductList />
         </div>
     )
 }
