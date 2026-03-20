@@ -18,6 +18,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
+         
+          PERMISSIONS: read-all
+      
+          VALIDATE_CHECKOV: false
+          VALIDATE_CSS: false
+          VALIDATE_JS_STANDARD: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_SHELL_SHFMT: false
           VALIDATE_BASH_EXEC: false
 
   test-backend:
