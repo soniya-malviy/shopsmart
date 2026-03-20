@@ -21,13 +21,14 @@ jobs:
     name: Test Backend
     runs-on: ubuntu-latest
     steps:
-      
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - working-directory: ./server
         run: |
           npm ci
@@ -38,9 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
+
       - working-directory: ./client
         run: |
           npm ci
@@ -52,18 +55,33 @@ jobs:
     needs: [test-backend, test-frontend]
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - name: Install dependencies
+
+      - name: Install and start services
         run: |
-          cd server && npm ci && npm start &
-          cd ../client && npm ci && npm run build &
+          cd server
+          npm ci
+          npm start > server.log 2>&1 &
+          
+          cd ../client
+          npm ci
+          npm run build
+          npm run preview > client.log 2>&1 &
+          
           sleep 10
-      - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright Browsers
+        run: |
+          cd client
+          npx playwright install --with-deps
+
       - name: Run E2E tests
-        run: cd client && npx playwright test
+        run: |
+          cd client
+          npx playwright test
 
   deploy:
     name: Deploy to EC2
@@ -72,6 +90,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -81,5 +100,11 @@ jobs:
           script: |
             cd /home/${{ secrets.EC2_USER }}/shopsmart
             git pull
-            cd server && npm ci && npm start &
-            cd ../client && npm ci && npm run build
+            
+            cd server
+            npm ci
+            npm start > server.log 2>&1 &
+            
+            cd ../client
+            npm ci
+            npm run build
