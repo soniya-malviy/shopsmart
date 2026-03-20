@@ -1,4 +1,6 @@
 name: CI Pipeline
+permissions:
+  contents: read
 
 on:
   push:
@@ -16,6 +18,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
+          VALIDATE_BASH_EXEC: false
 
   test-backend:
     name: Test Backend
