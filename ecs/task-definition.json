@@ -4,7 +4,6 @@
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "arn:aws:iam::669283798628:role/LabRole",
   "containerDefinitions": [
     {
       "name": "shopsmart-backend",
@@ -16,14 +15,6 @@
           "protocol": "tcp"
         }
       ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs/shopsmart-backend",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      },
       "healthCheck": {
         "command": ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:5001/health || exit 1"],
         "interval": 30,
