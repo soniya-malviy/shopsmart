@@ -107,12 +107,14 @@ jobs:
         run: |
           TAG=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/shopsmart:${{ github.sha }}
           echo "tags=$TAG" >> $GITHUB_OUTPUT
-          echo "registry=${{ secrets.AWS_REGION }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         working-directory: ./server
         run: |
           docker build -t shopsmart:${{ github.sha }} .
+
+      - name: Debug image tag
+        run: echo "IMAGE = ${{ steps.meta.outputs.tags }}"
 
       - name: Tag Docker image
         run: |
@@ -139,13 +141,18 @@ jobs:
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
 
+      
+      - name: Debug received image
+        run: echo "IMAGE FROM PREV JOB = ${{ needs.docker-build.outputs.image-tag }}"
+
+
       - name: Render Amazon ECS task definition
         id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ecs/task-definition.json
           container-name: shopsmart-backend
-          image: ${{ needs.docker-build.outputs.image-tag }}
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/shopsmart:${{ github.sha }}
 
 
       - name: Deploy to Amazon ECS
