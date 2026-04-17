@@ -97,28 +97,4 @@ jobs:
           cd client
           npx playwright test
 
-  deploy:
-    name: Deploy to EC2
-    runs-on: ubuntu-latest
-    needs: [lint, test-backend, test-frontend]
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd /home/${{ secrets.EC2_USER }}/shopsmart
-            git pull
-            
-            cd server
-            npm ci
-            npm start > server.log 2>&1 &
-            
-            cd ../client
-            npm ci
-            npm run build
+  
