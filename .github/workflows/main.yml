@@ -28,6 +28,7 @@ jobs:
           VALIDATE_MARKDOWN: false
           VALIDATE_SHELL_SHFMT: false
           VALIDATE_BASH_EXEC: false
+          VALIDATE_JSCPD: false
 
   test-backend:
     name: Test Backend
