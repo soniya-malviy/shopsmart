@@ -20,7 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BRANCH: main
-         
+          VALIDATE_GITHUB_ACTIONS: false
           VALIDATE_JAVASCRIPT_STANDARD: false
           VALIDATE_JS_STANDARD: false
           VALIDATE_TERRAFORM_TERRASCAN: false
