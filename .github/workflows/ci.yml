@@ -139,10 +139,19 @@ jobs:
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
 
+      - name: Render Amazon ECS task definition
+        id: render-task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ecs/task-definition.json
+          container-name: shopsmart-backend
+          image: ${{ needs.docker-build.outputs.image-tag }}
+
+
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ecs/task-definition.json:${{ needs.docker-build.outputs.image-tag }}
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: shopsmart-backend
           cluster: shopsmart-ecs-cluster
           wait-for-service-stability: true
