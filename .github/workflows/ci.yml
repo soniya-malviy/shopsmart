@@ -115,8 +115,11 @@ jobs:
       - name: Set image tag
         id: meta
         run: |
-          TAG=${{ steps.login-ecr.outputs.registry }}/final/submission:${{ github.sha }}
-          echo "tags=$TAG" >> $GITHUB_OUTPUT
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY="final/submission"
+          IMAGE_TAG=${{ github.sha }}
+          echo "tags=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
 
       - name: Build Docker image
         working-directory: ./server
@@ -159,7 +162,8 @@ jobs:
 
       - name: Render Amazon ECS task definition
         id: render-task
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        uses: aws-actions/amazon-ecs-render-task-definition@v1.6.2
+
         with:
           task-definition: ecs/task-definition.json
           container-name: final-submission-backend
