@@ -1,12 +1,12 @@
 {
-  "family": "final-submission-backend",
+  "family": "shopsmart-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
   "containerDefinitions": [
     {
-      "name": "final-submission-backend",
+      "name": "shopsmart-backend",
       "image": "{{ecr-image}}",
       "essential": true,
       "portMappings": [
@@ -18,7 +18,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/final-submission-backend",
+          "awslogs-group": "/ecs/shopsmart-backend",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }

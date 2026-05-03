@@ -134,7 +134,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1.6.2
         with:
           task-definition: ecs/task-definition.json
-          container-name: final-submission-backend
+          container-name: shopsmart-backend
           image: ${{ steps.meta.outputs.tags }}
           environment-variables: |
             NODE_ENV=production
@@ -152,8 +152,8 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1.1.0
         with:
           task-definition: rendered-task-definition.json
-          service: final-submission-backend
-          cluster: final-submission-cluster
+          service: shopsmart-backend
+          cluster: shopsmart-ecs-cluster
           wait-for-service-stability: true
 
 

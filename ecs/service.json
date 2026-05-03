@@ -1,7 +1,7 @@
 {
-  "serviceName": "final-submission-backend",
+  "serviceName": "shopsmart-backend",
   "cluster": "{{ecs-cluster}}",
-  "taskDefinition": "final-submission-backend",
+  "taskDefinition": "shopsmart-backend",
   "desiredCount": 1,
   "launchType": "FARGATE",
   "networkConfiguration": {
@@ -14,7 +14,7 @@
   "loadBalancers": [
     {
       "targetGroupArn": "{{target-group-arn}}",
-      "containerName": "final-submission-backend",
+      "containerName": "shopsmart-backend",
       "containerPort": 5001
     }
   ],
