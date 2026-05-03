@@ -11,10 +11,11 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-  TERRAFORM_VERSION: "1.6.6"
+  TERRAFORM_VERSION: "1.7.0"
   AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
+
   test:
     name: Phase 1 - Testing
     runs-on: ubuntu-latest
@@ -82,7 +83,7 @@ jobs:
       - name: Terraform Plan
         working-directory: ./terraform
         run: |
-          terraform plan -var="bucket_name=final-submission-app-${{ github.run_id }}" -out=tfplan
+          terraform plan -var="bucket_name=final-submission-app-shopsmart-deployment" -out=tfplan
 
       - name: Terraform Apply
         working-directory: ./terraform
