@@ -54,7 +54,7 @@ jobs:
     name: Phase 2 - Infrastructure Provisioning
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,6 +86,7 @@ jobs:
           terraform plan -var="bucket_name=final-submission-app-shopsmart-deployment" -out=tfplan
 
       - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
         working-directory: ./terraform
         run: terraform apply -auto-approve tfplan
 
@@ -93,7 +94,7 @@ jobs:
     name: Phase 3 - Build and Deploy
     runs-on: ubuntu-latest
     needs: terraform
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
