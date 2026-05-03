@@ -149,7 +149,7 @@ jobs:
 
 
       - name: Deploy to Amazon ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1.1.0
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: rendered-task-definition.json
           service: shopsmart-backend
