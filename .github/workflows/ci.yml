@@ -157,12 +157,19 @@ jobs:
         run: echo "IMAGE FROM PREV JOB = ${{ needs.docker-build.outputs.image-tag }}"
 
 
+      - name: Render Amazon ECS task definition
+        id: render-task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ecs/task-definition.json
+          container-name: final-submission-backend
+          image: ${{ needs.docker-build.outputs.image-tag }}
+
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ecs/task-definition.json
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: final-submission-backend
           cluster: final-submission-cluster
-          image: ${{ needs.docker-build.outputs.image-tag }}
-          container-name: final-submission-backend
           wait-for-service-stability: true
+
