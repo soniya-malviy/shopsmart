@@ -31,13 +31,23 @@ jobs:
         working-directory: ./server
         run: |
           npm ci
-          npm test
+          npm test -- --json --outputFile=test-report.json
 
       - name: Test Frontend
         working-directory: ./client
         run: |
           npm ci
-          npm run test -- --run
+          npm run test -- --run --reporter=json --outputFile=test-report.json
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            server/test-report.json
+            client/test-report.json
+
 
   terraform:
     name: Phase 2 - Infrastructure Provisioning
@@ -72,7 +82,7 @@ jobs:
       - name: Terraform Plan
         working-directory: ./terraform
         run: |
-          terraform plan -var="bucket_name=shopsmart-rubrics-${{ github.run_id }}" -out=tfplan
+          terraform plan -var="bucket_name=final-submission-app-${{ github.run_id }}" -out=tfplan
 
       - name: Terraform Apply
         working-directory: ./terraform
@@ -99,26 +109,27 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/ecr-login@v2
  
 
       - name: Set image tag
         id: meta
         run: |
-          TAG=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/shopsmart:${{ github.sha }}
+          TAG=${{ steps.login-ecr.outputs.registry }}/final/submission:${{ github.sha }}
           echo "tags=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         working-directory: ./server
         run: |
-          docker build -t shopsmart:${{ github.sha }} .
+          docker build -t final/submission:${{ github.sha }} .
 
       - name: Debug image tag
         run: echo "IMAGE = ${{ steps.meta.outputs.tags }}"
 
       - name: Tag Docker image
         run: |
-          docker tag shopsmart:${{ github.sha }} ${{ steps.meta.outputs.tags }}
+          docker tag final/submission:${{ github.sha }} ${{ steps.meta.outputs.tags }}
+
 
       - name: Push Docker image to ECR
         run: |
@@ -146,19 +157,10 @@ jobs:
         run: echo "IMAGE FROM PREV JOB = ${{ needs.docker-build.outputs.image-tag }}"
 
 
-      - name: Render Amazon ECS task definition
-        id: render-task
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ecs/task-definition.json
-          container-name: shopsmart-backend
-          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/shopsmart:${{ github.sha }}
-
-
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.render-task.outputs.task-definition }}
-          service: shopsmart-backend
-          cluster: shopsmart-ecs-cluster
+          task-definition: ecs/task-definition.json
+          service: final-submission-backend
+          cluster: final-submission-cluster
           wait-for-service-stability: true
