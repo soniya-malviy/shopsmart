@@ -11,7 +11,7 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'ShopSmart Backend is running',
+    message: 'ShopSmart Backend is running - Final Verification',
     timestamp: new Date().toISOString()
   });
 });
