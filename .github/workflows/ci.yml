@@ -163,4 +163,6 @@ jobs:
           task-definition: ecs/task-definition.json
           service: final-submission-backend
           cluster: final-submission-cluster
+          image: ${{ needs.docker-build.outputs.image-tag }}
+          container-name: final-submission-backend
           wait-for-service-stability: true
