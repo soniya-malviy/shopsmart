@@ -41,7 +41,12 @@ app.get('/api/products/search', (req, res) => {
 
 // Catch-all: serve frontend for any non-API route
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
+  const indexPath = path.join(__dirname, '../public', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send('ShopSmart Backend Service');
+  }
 });
 
 module.exports = app;
