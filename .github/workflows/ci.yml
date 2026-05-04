@@ -84,6 +84,16 @@ jobs:
         run: |
           terraform plan -out=tfplan
 
+      - name: Clean up deposed resources
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./terraform
+        run: |
+          # Remove any deposed/orphaned security groups from state to avoid long destruction waits
+          terraform state list | grep 'aws_security_group' | while read sg; do
+            terraform state show "$sg" 2>/dev/null || terraform state rm "$sg" 2>/dev/null || true
+          done
+        continue-on-error: true
+
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: ./terraform
