@@ -64,16 +64,17 @@ resource "aws_ecs_cluster" "main" {
   name = "shopsmart-final-cluster"
 }
 
-# 5. Security Group
-resource "aws_security_group" "ecs_tasks" {
-  name        = "shopsmart-final-sg"
-  description = "allow inbound access on port 5001"
+# 5. Security Groups
+# ALB Security Group (Public Access)
+resource "aws_security_group" "alb" {
+  name        = "shopsmart-final-alb-sg"
+  description = "allow inbound HTTP traffic"
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
     protocol    = "tcp"
-    from_port   = 5001
-    to_port     = 5001
+    from_port   = 80
+    to_port     = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -85,7 +86,65 @@ resource "aws_security_group" "ecs_tasks" {
   }
 }
 
-# 6. ECS Task Definition
+# ECS Tasks Security Group (Access from ALB only)
+resource "aws_security_group" "ecs_tasks" {
+  name        = "shopsmart-final-tasks-sg"
+  description = "allow inbound access from the ALB only"
+  vpc_id      = data.aws_vpc.default.id
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = 5001
+    to_port         = 5001
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# 6. Application Load Balancer
+resource "aws_lb" "main" {
+  name               = "shopsmart-final-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = data.aws_subnets.default.ids
+}
+
+resource "aws_lb_target_group" "app" {
+  name        = "shopsmart-final-tg"
+  port        = 5001
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.default.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/api/health"
+    healthy_threshold   = 2
+    unhealthy_threshold = 10
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
+}
+
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app.arn
+  }
+}
+
+# 7. ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "shopsmart-final-task"
   network_mode             = "awsvpc"
@@ -118,7 +177,7 @@ resource "aws_ecs_task_definition" "app" {
   ])
 }
 
-# 7. ECS Service
+# 8. ECS Service (Updated with ALB)
 resource "aws_ecs_service" "main" {
   name            = "shopsmart-final-service"
   cluster         = aws_ecs_cluster.main.id
@@ -132,7 +191,19 @@ resource "aws_ecs_service" "main" {
     assign_public_ip = true
   }
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.app.arn
+    container_name   = "shopsmart-final-container"
+    container_port   = 5001
+  }
+
+  depends_on = [aws_lb_listener.front_end]
+
   lifecycle {
     ignore_changes = [task_definition, desired_count]
   }
+}
+
+output "alb_hostname" {
+  value = aws_lb.main.dns_name
 }
