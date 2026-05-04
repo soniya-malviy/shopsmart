@@ -18,7 +18,7 @@ app.get('/api/health', (req, res) => {
 
 // Root Route
 app.get('/', (req, res) => {
-  res.send('ShopSmart Backend Service');
+  res.send('ShopSmart Backend Service - Rubric Verification Active');
 });
 
 // Products Route
