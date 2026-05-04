@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('ProductList', () => {
     let mockFetch;
+    const mockAddToCart = vi.fn();
 
     beforeEach(() => {
         mockFetch = vi.fn();
@@ -17,8 +18,8 @@ describe('ProductList', () => {
     it('shows loading state', async () => {
         mockFetch.mockImplementation(() => new Promise(() => {}));
 
-        render(<ProductList />);
-        expect(screen.getByText(/Loading products/i)).toBeInTheDocument();
+        render(<ProductList cart={[]} addToCart={mockAddToCart} />);
+        expect(document.querySelector('.spinner')).toBeInTheDocument();
     });
 
     it('displays products from API', async () => {
@@ -29,7 +30,7 @@ describe('ProductList', () => {
             ])
         });
 
-        render(<ProductList />);
+        render(<ProductList cart={[]} addToCart={mockAddToCart} />);
         await waitFor(() => {
             expect(screen.getByText('Test Product')).toBeInTheDocument();
         });
@@ -41,7 +42,7 @@ describe('ProductList', () => {
             json: () => Promise.resolve([])
         });
 
-        render(<ProductList />);
+        render(<ProductList cart={[]} addToCart={mockAddToCart} />);
         await waitFor(() => {
             expect(screen.getByPlaceholderText(/Search products/i)).toBeInTheDocument();
         });
@@ -56,10 +57,10 @@ describe('ProductList', () => {
             ])
         });
 
-        render(<ProductList />);
+        render(<ProductList cart={[]} addToCart={mockAddToCart} />);
         await waitFor(() => {
             expect(screen.getByText('In Stock')).toBeInTheDocument();
-            expect(screen.getByText('Out of Stock')).toBeInTheDocument();
+            expect(screen.getByText('Sold Out')).toBeInTheDocument();
         });
     });
 
@@ -71,9 +72,9 @@ describe('ProductList', () => {
             ])
         });
 
-        render(<ProductList />);
+        render(<ProductList cart={[]} addToCart={mockAddToCart} />);
         await waitFor(() => {
-            expect(screen.getByText('$12999')).toBeInTheDocument();
+            expect(screen.getByText('₹12,999')).toBeInTheDocument();
         });
     });
 });
