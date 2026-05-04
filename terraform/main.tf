@@ -125,7 +125,7 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "shopsmart-final-tg"
+  name_prefix = "ss-tg-"
   port        = 5001
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
