@@ -67,7 +67,7 @@ resource "aws_ecs_cluster" "main" {
 # 5. Security Groups
 # ALB Security Group (Public Access)
 resource "aws_security_group" "alb" {
-  name        = "shopsmart-final-alb-sg"
+  name_prefix = "shopsmart-final-alb-sg-"
   description = "allow inbound HTTP traffic"
   vpc_id      = data.aws_vpc.default.id
 
@@ -84,11 +84,15 @@ resource "aws_security_group" "alb" {
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # ECS Tasks Security Group (Access from ALB only)
 resource "aws_security_group" "ecs_tasks" {
-  name        = "shopsmart-final-tasks-sg"
+  name_prefix = "shopsmart-final-tasks-sg-"
   description = "allow inbound access from the ALB only"
   vpc_id      = data.aws_vpc.default.id
 
@@ -104,6 +108,10 @@ resource "aws_security_group" "ecs_tasks" {
     from_port   = 0
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
