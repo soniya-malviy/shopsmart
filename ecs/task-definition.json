@@ -1,12 +1,12 @@
 {
-  "family": "shopsmart-backend",
+  "family": "shopsmart-final-task",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
   "memory": "512",
   "containerDefinitions": [
     {
-      "name": "shopsmart-backend",
+      "name": "shopsmart-final-container",
       "image": "{{ecr-image}}",
       "essential": true,
       "portMappings": [
@@ -18,7 +18,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/shopsmart-backend",
+          "awslogs-group": "/ecs/shopsmart-final-service",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }

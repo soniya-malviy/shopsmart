@@ -15,7 +15,6 @@ env:
   AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-
   test:
     name: Phase 1 - Testing
     runs-on: ubuntu-latest
@@ -83,7 +82,7 @@ jobs:
       - name: Terraform Plan
         working-directory: ./terraform
         run: |
-          terraform plan -var="bucket_name=final-submission-app-shopsmart-deployment" -out=tfplan
+          terraform plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
@@ -114,16 +113,16 @@ jobs:
       - name: Set image tag
         id: meta
         run: |
-          echo "tags=${{ steps.login-ecr.outputs.registry }}/final/submission:${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "tags=${{ steps.login-ecr.outputs.registry }}/shopsmart-final-repo:${{ github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
         working-directory: ./server
         run: |
-          docker build -t final/submission:${{ github.sha }} .
+          docker build -t shopsmart-final-repo:${{ github.sha }} .
 
       - name: Tag and Push Docker image
         run: |
-          docker tag final/submission:${{ github.sha }} ${{ steps.meta.outputs.tags }}
+          docker tag shopsmart-final-repo:${{ github.sha }} ${{ steps.meta.outputs.tags }}
           docker push ${{ steps.meta.outputs.tags }}
 
       - name: Get AWS Account ID
@@ -135,7 +134,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1.6.2
         with:
           task-definition: ecs/task-definition.json
-          container-name: shopsmart-backend
+          container-name: shopsmart-final-container
           image: ${{ steps.meta.outputs.tags }}
           environment-variables: |
             NODE_ENV=production
@@ -148,14 +147,10 @@ jobs:
             taskRoleArn: "arn:aws:iam::${{ steps.account.outputs.id }}:role/LabRole"
           }' ${{ steps.render-task.outputs.task-definition }} > rendered-task-definition.json
 
-
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: rendered-task-definition.json
-          service: shopsmart-backend
-          cluster: shopsmart-ecs-cluster
+          service: shopsmart-final-service
+          cluster: shopsmart-final-cluster
           wait-for-service-stability: true
-
-
-
